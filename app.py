@@ -65,7 +65,7 @@ def add_shape_to_playfield(action, playfield, column_tops):
 
 def remove_completed_rows(playfield, column_tops):
     """
-    Removes completed rows from the playfield and updates column tops.
+    Removes completed rows from the playfield and updates column tops efficiently.
 
     Args:
         playfield (list[list[int]]): The current playfield grid.
@@ -81,22 +81,16 @@ def remove_completed_rows(playfield, column_tops):
     if not rows_to_remove:
         return
 
-    # Remove identified rows and update playfield
-    new_playfield = []
-    for i in range(len(playfield)):
-        if i not in rows_to_remove:
-            new_playfield.append(playfield[i])
+    # Remove identified rows from the playfield
+    playfield[:] = [row for i, row in enumerate(playfield) if i not in rows_to_remove]
 
-    # Update playfield and column tops
-    playfield.clear()
-    playfield.extend(new_playfield)
+    # Adjust column tops based on removed rows
+    for col_index in range(len(column_tops)):
+        original_top = column_tops[col_index]
+        # Count how many rows below the column top are being removed
+        removed_count = sum(1 for row_index in rows_to_remove if row_index < original_top)
+        column_tops[col_index] -= removed_count
 
-    # Recalculate column tops
-    column_tops[:] = [0] * 10
-    for row_index, row in enumerate(playfield):
-        for col_index, cell in enumerate(row):
-            if cell:
-                column_tops[col_index] = max(column_tops[col_index], row_index + 1)
 
 if __name__ == "__main__":
     """
